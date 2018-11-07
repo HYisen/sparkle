@@ -5,7 +5,10 @@ import org.apache.spark.storage.StorageLevel;
 import scala.Tuple2;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -58,8 +61,46 @@ public class Main {
         ));
         tl.log("02");
 
+
+        Utility.output("time-hours", String.join("\n",
+                sc
+                        .parallelizePairs(data
+                                .map(Record::getTime)
+                                .map(v -> v.format(DateTimeFormatter.ofPattern("yyyyMMddHH")))
+                                .countByValue()
+                                .entrySet()
+                                .stream()
+                                .map(v -> new Tuple2<>(v.getKey(), v.getValue()))
+                                .collect(Collectors.toList())
+                        )
+                        .sortByKey()
+                        .map(v -> v._1 + "\t" + v._2 + "\t" + (double) v._2 / count)
+                        .collect()
+        ));
+        tl.log("03");
+
+        Utility.output("time-minutes", String.join("\n",
+                data
+                        .map(Record::getTime)
+                        .map(LocalDateTime::getMinute)
+                        .mapToPair(v -> new Tuple2<>(v, 1))
+                        .reduceByKey((a, b) -> a + b)
+                        .map(v -> String.format("%2d\t%d\t%.9f", v._1, v._2, (double) v._2 / count))
+                        .collect()
+        ));
+        tl.log("04");
+
+        Utility.output("time-seconds", String.join("\n",
+                data
+                        .map(Record::getTime)
+                        .map(LocalDateTime::getSecond)
+                        .mapToPair(v -> new Tuple2<>(v, 1))
+                        .reduceByKey((a, b) -> a + b)
+                        .map(v -> String.format("%2d\t%d\t%.9f", v._1, v._2, (double) v._2 / count))
+                        .collect()
+        ));
+        tl.log("05");
+
         data.unpersist();
-
-
     }
 }
