@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class Item implements Serializable, Comparable<Item> {
     private LocalDateTime time;
@@ -19,18 +20,25 @@ public class Item implements Serializable, Comparable<Item> {
     public Item() {
     }
 
-    public Item(String line) {
-        load(line);
-    }
-
-    public void load(String line) {
+    public static Optional<Item> genItemOptional(String line) {
         String[] words = line.split("\t");
-        this.time = LocalDateTime.parse(words[0], DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        this.uid = words[1];
-        this.key = words[2];
-        this.position = Integer.valueOf(words[3]);
-        this.frequent = Integer.valueOf(words[4]);
-        this.url = words[5];
+
+        Item rtn = new Item();
+
+        try {
+            rtn.time = LocalDateTime.parse(words[0], DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            rtn.uid = words[1];
+            rtn.key = words[2];
+            rtn.position = Integer.valueOf(words[3]);
+            rtn.frequent = Integer.valueOf(words[4]);
+            rtn.url = words[5];
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            System.out.println("fail to parse line : " + line);
+            rtn = null;
+        }
+
+        return Optional.ofNullable(rtn);
     }
 
     @Override
