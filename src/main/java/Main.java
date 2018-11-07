@@ -21,8 +21,8 @@ public class Main {
 
         JavaRDD<String> input = sc.textFile("/home/alex/code/00/data");
         long total = input.count();
-        JavaRDD<Item> data = input
-                .map(Item::genItemOptional)
+        JavaRDD<Record> data = input
+                .map(Record::genItemOptional)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .persist(StorageLevel.MEMORY_ONLY());
@@ -35,7 +35,7 @@ public class Main {
 
         Utility.output("most-key", String.join("\n",
                 data
-                        .map(Item::getKey)
+                        .map(Record::getKey)
                         .mapToPair(v -> new Tuple2<>(v, 1))
                         .reduceByKey((a, b) -> a + b)
                         .mapToPair(v -> new Tuple2<>(v._2, v._1))
@@ -47,7 +47,7 @@ public class Main {
 
         Utility.output("most-url", String.join("\n",
                 data
-                        .map(Item::getUrl)
+                        .map(Record::getUrl)
                         .map(v -> v.split("/")[2])
                         .mapToPair(v -> new Tuple2<>(v, 1))
                         .reduceByKey((a, b) -> a + b)
@@ -59,6 +59,7 @@ public class Main {
         tl.log("02");
 
         data.unpersist();
+
 
     }
 }

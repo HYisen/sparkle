@@ -3,7 +3,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-public class Item implements Serializable, Comparable<Item> {
+public class Record implements Serializable, Comparable<Record> {
     private LocalDateTime time;
     private String uid;
     private String key;
@@ -13,17 +13,17 @@ public class Item implements Serializable, Comparable<Item> {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public int compareTo(Item o) {
+    public int compareTo(Record o) {
         return time.compareTo(o.time);
     }
 
-    public Item() {
+    public Record() {
     }
 
-    public static Optional<Item> genItemOptional(String line) {
+    public static Optional<Record> genItemOptional(String line) {
         String[] words = line.split("\t");
 
-        Item rtn = new Item();
+        Record rtn = new Record();
 
         try {
             rtn.time = LocalDateTime.parse(words[0], DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
